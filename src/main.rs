@@ -20,6 +20,9 @@ fn main() {
                                .help("Skip `offset` bytes from the beginning of the input")
                                .takes_value(true)
                                .value_name("offset"))
+                          .arg(Arg::with_name("plain")
+                               .short("p")
+                               .help("Output in plain text"))
                           .arg(Arg::with_name("file")
                                .help("Set the input file")
                                .required(true)
@@ -49,5 +52,7 @@ fn main() {
         None      => None,
     };
 
-    lib::run(&mut file, filesize, initial_offset, length);
+    let plain = matches.occurrences_of("plain") > 0;
+
+    lib::run(&mut file, filesize, initial_offset, length, plain);
 }
