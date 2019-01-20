@@ -7,11 +7,11 @@ use std::{
 #[inline]
 fn color(b: u8) -> u8 {
     match b {
-        0x00 => 37,
-        0x20 => 92,
-        0x21 ... 0x7e => 96,
-        0x01 ... 0x1f | 0x7f => 95,
-        _ => 93,
+        0x00 => 37,                     // null
+        0x20 => 92,                     // space
+        0x21 ... 0x7e => 96,            // printable char
+        0x01 ... 0x1f | 0x7f => 95,     // control char
+        _ => 93,                        // nonascii
     }
 }
 
@@ -22,9 +22,7 @@ fn line(
     n: usize,
     plain: bool,
 ) -> String {
-
     let hexes = buf.iter().enumerate().take(n).map(|(i, &b)| {
-
         let s = if i == 7 {
             format!("{:02x} ", b)
         } else {
@@ -37,7 +35,6 @@ fn line(
     }).collect::<Vec<String>>().join(" ");
 
     let chars = buf.iter().take(n).map(|&b| {
-
         let s = match b {
             0x21 ..= 0x7e => format!("{}", b as char),
             _ => ".".to_string(),
@@ -57,7 +54,6 @@ fn line(
 }
 
 fn offset_bits_count(mut offset: u64) -> usize {
-
     let mut count = 8;
     offset >>= 32;
 

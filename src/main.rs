@@ -1,15 +1,15 @@
 use std::fs::{File, metadata};
 
 extern crate clap;
-use clap::{App, Arg};
+use clap::{App, AppSettings, Arg, crate_name};
 
 mod lib;
 
 fn main() {
-    let matches = App::new(env!("CARGO_PKG_NAME"))
-                          .version(env!("CARGO_PKG_VERSION"))
-                          .about(env!("CARGO_PKG_DESCRIPTION"))
-                          .author(env!("CARGO_PKG_AUTHORS"))
+    let matches = App::new(crate_name!())
+                          .setting(AppSettings::ColoredHelp)
+                          .setting(AppSettings::DeriveDisplayOrder)
+                          .setting(AppSettings::UnifiedHelpMessage)
                           .arg(Arg::with_name("length")
                                .short("n")
                                .help("Interpret only `length` bytes of input")
@@ -24,7 +24,7 @@ fn main() {
                                .short("p")
                                .help("Output in plain text"))
                           .arg(Arg::with_name("file")
-                               .help("Set the input file")
+                               .help("File to display")
                                .required(true)
                                .index(1))
                           .get_matches();
