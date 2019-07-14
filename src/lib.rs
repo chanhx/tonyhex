@@ -1,5 +1,6 @@
 use std::{
     cmp::min,
+    error::Error,
     fs::File,
     io::{prelude::*, SeekFrom},
 };
@@ -18,18 +19,19 @@ fn color(b: u8) -> u8 {
 fn line(
     offset: u64,
     offset_width: usize,
-    buf: [u8; 16], 
+    buf: [u8; 16],
     n: usize,
     plain: bool,
 ) -> String {
     let hexes = buf.iter().enumerate().take(n).map(|(i, &b)| {
-        let s = if i == 7 {
-            format!("{:02x} ", b)
-        } else {
-            format!("{:02x}", b)
+        let s = match i {
+            8 => format!(" {:02x}", b),
+            _ => format!("{:02x}", b),
         };
 
-        if plain {s} else {
+        if plain {
+            s
+        } else {
             format!("\x1b[{}m{}", color(b), s)
         }
     }).collect::<Vec<String>>().join(" ");
@@ -40,7 +42,9 @@ fn line(
             _ => ".".to_string(),
         };
 
-        if plain {s} else {
+        if plain {
+            s
+        } else {
             format!("\x1b[{}m{}", color(b), s)
         }
     }).collect::<String>();
@@ -48,7 +52,7 @@ fn line(
     if plain {
         format!("{:0width$x}  {:48}  {}", offset, hexes, chars, width=offset_width)
     } else {
-        format!("{:0width0$x}  {:width1$}  {}\x1b[0m", 
+        format!("{:0width0$x}  {:width1$}  {}\x1b[0m",
             offset, hexes, chars, width0=offset_width, width1=48+n*5)
     }
 }
@@ -66,23 +70,30 @@ fn offset_bits_count(mut offset: u64) -> usize {
 }
 
 pub fn run(
-    file: &mut File,
+    filename: &str,
     filesize: u64,
-    initial_offset: u64,
+    offset: u64,
     length: Option<u64>,
     plain: bool,
 ) {
+    let mut file = match File::open(filename) {
+        Err(err) => panic!("couldn't open {}: {}", filename, err.description()),
+        Ok(file) => file,
+    };
+
     let max_offset = match length {
-        Some(len) => initial_offset + len,
+        Some(len) => offset + len,
         None => filesize,
     };
 
     let offset_width = offset_bits_count(max_offset);
 
     let mut buf = [0u8; 16];
-    let mut offset = if initial_offset > 0 {
-        file.seek(SeekFrom::Start(initial_offset)).unwrap()
-    } else {0};
+    let mut offset = if offset > 0 {
+        file.seek(SeekFrom::Start(offset)).unwrap()
+    } else {
+        0
+    };
 
     loop {
         let n = min(
