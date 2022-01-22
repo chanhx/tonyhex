@@ -1,8 +1,9 @@
 [package]
 name = "tonyhex"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["chanhx <ichan.hocheung@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-clap = {version = "~2.33", features = ["yaml"]}
+clap = { version = "~3.0", features = ["cargo"] }
+anyhow = "1.0"

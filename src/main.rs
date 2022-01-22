@@ -1,15 +1,31 @@
 use std::fs::metadata;
+use std::time::Instant;
 
-#[macro_use]
-extern crate clap;
-use clap::App;
+use anyhow::Result;
+use clap::{app_from_crate, AppSettings, Arg};
 
 mod types;
 mod viewer;
 
-fn main() {
-    let yaml = load_yaml!("cli.yml");
-    let m = App::from_yaml(yaml).get_matches();
+fn main() -> Result<()> {
+    let app = app_from_crate!()
+        .setting(AppSettings::DeriveDisplayOrder)
+        .args(&[
+            Arg::new("length")
+                .short('n')
+                .takes_value(true)
+                .help("the input file to use"),
+            Arg::new("offset")
+                .short('s')
+                .takes_value(true)
+                .help("Skip `offset` bytes from the beginning of the input"),
+            Arg::new("plain").short('p').help("Output in plain text"),
+            Arg::new("file")
+                .index(1)
+                .takes_value(true)
+                .help("File to display"),
+        ]);
+    let m = app.get_matches();
 
     let filename = m.value_of("file").unwrap();
     let filesize = metadata(filename).unwrap().len();
@@ -35,4 +51,6 @@ fn main() {
     let plain = m.occurrences_of("plain") > 0;
 
     viewer::run(filename, filesize, offset, length, plain);
+
+    Ok(())
 }
