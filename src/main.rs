@@ -1,5 +1,4 @@
 use std::fs::metadata;
-use std::time::Instant;
 
 use anyhow::Result;
 use clap::{app_from_crate, AppSettings, Arg};
@@ -50,7 +49,5 @@ fn main() -> Result<()> {
 
     let plain = m.occurrences_of("plain") > 0;
 
-    viewer::run(filename, filesize, offset, length, plain);
-
-    Ok(())
+    viewer::run(filename, filesize, offset, length, plain)
 }
