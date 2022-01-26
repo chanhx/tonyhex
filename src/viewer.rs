@@ -15,33 +15,22 @@ fn line(
     chars: String,
     plain: bool,
 ) -> String {
-    let hexes_len = hexes.len();
-    if hexes_len > 8 {
-        let width1 = 8 * 2 + (8 - 1) + if plain { 0 } else { (hexes_len - 8) * 5 };
+    let hexes_width = 16 * 2 + (8 - 1) * 2 + 2 + if plain { 0 } else { hexes.len() * 5 };
+    let hexes = hexes
+        .chunks(8)
+        .map(|cnk| cnk.join(" "))
+        .collect::<Vec<_>>()
+        .join("  ");
 
-        format!(
-            "{:0width0$x}  {}  {:width1$}  {}{}\n",
-            offset,
-            hexes[0..8].join(" "),
-            hexes[8..].join(" "),
-            chars,
-            if plain { "" } else { "\x1b[0m" },
-            width0 = offset_width,
-            width1 = width1,
-        )
-    } else {
-        let width1 = 16 * 2 + (16 - 1) + 2 + if plain { 0 } else { hexes_len * 5 };
-
-        format!(
-            "{:0width0$x}  {:width1$} {}{}\n",
-            offset,
-            hexes.join(" "),
-            chars,
-            if plain { "" } else { "\x1b[0m" },
-            width0 = offset_width,
-            width1 = width1,
-        )
-    }
+    format!(
+        "{:0width0$x}  {:width1$}  {}{}\n",
+        offset,
+        hexes,
+        chars,
+        if plain { "" } else { "\x1b[0m" },
+        width0 = offset_width,
+        width1 = hexes_width,
+    )
 }
 
 fn offset_bits_count(mut offset: u64) -> usize {
